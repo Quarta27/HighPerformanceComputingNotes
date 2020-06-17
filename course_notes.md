@@ -41,6 +41,7 @@
     - Evitare dipendenze tra loop
     - Meglio array notation anzichè pointer (aliasing) pointer potrebbero essere qualunque cosa
     - Usare il loop index direttamente anzichè usare altre var
+
 ## 04 - Cache Awarness
 - **Cache optimality:**
   - Vengono fatte degli ottimi place replacement
@@ -53,17 +54,38 @@
   -  **False sharing:**
   -  **External memory model vs Cache oblivious:**
   -  **Teoremi:**
-  -  **Dot product:**
-     - **Column Major Order:**
-     - **Trasposta matrice B:** per moltiplicare le magtrici efficacemente riga per riga faccio la trasposta $B^T$
-     - **Divide and conquer:** $1 + N/B$ trasferimenti con $N$ grandezza della matrice e B lunghezza del blocco della cache. $N_{Trans} = n^2 + n^3/B$. Quindi utilizziamo la divisione a blocchi. Ogni blocco è grande $S**S$ tali che $3**S^2 = M$. Così metto piccoli blocchi in memoria. No layout rows/columns major. Caso base: ho spazio per solo tre blocchi. Complessità: $=(n^2/B + n^3/B**sqrt(N))$
-     - **Z-order:**
-     - **Bit:**
 
+## 05 - Rapid Scorer Project
+
+## 06 - Top-k binary pattern Project
 
 ## 07 - Cache oblivious II
-- Funnelsort
-- 
+- **External memory model:**
+ - I trasferimenti avvengo a blocch di dimensione $B$, la cache ha dimensione $M \ge B$ con $M/B$ entries.
+ - Semplice, chiede di minimizzare I/O, ottimizzato per specifici valori di $M$ e$B$, operazione di lettura e scrittura espliciti, gestione della cache esplicita.
+ - Esempio: Scansione lineare di N elementi memorizzati in un segmento di memoria continuo richiedono $N/B + 1$ trasferimenti.
+- **Cache oblibious model:** vuole progettare un algoritmo ottimare per ogni $B$ e $M$.
+  - Solo un livello di cache, non gestisce esplicitamente la cache, fa delle assunzioni (tall cache $M = \Omega (B^2)$, modello di cache ideale (applica le sostituzioni migliori sempre), full associative)
+  - **Teorema 1:** se un algoritmo $A$ è cache oblivious optimal allora è ottimale su ogni due adiacenti livelli di memoria in una gerarchia complessa.
+  - **Teorema 2:** Sia $C_i$ il costo di accesso alla memoria $M_i$, se $A$ è cache oblivious optimal ad un fattore costante, allora $A$ è ottimale per ogni possibile set di fattori costanti $C_i$
+  - **Teorema 3:** Se $A$ richiede $T$ trasferimenti e la dimensione della cache è $M/2$, allora $A$ richiede al più $2T$ trasferimenti su una cache size $M$ con policy di sostituziones $LRU$ e $FIFO$.
+  - **Teorema 4:** Un cache con policy LRU/FIFO di dimensione $M$ e blocksize $B$ possono essere simulate in $O(M)$ spazio, tale che l'accesso al blocco richiede $O(1)$.
+  - **Conclusioni:*** Un algoritmo cache oblivious può essere tradotto in una FIFO/LRU caceh 1-associativy pagando solo un fattore costante.
+-  **Dot product:** moltiplicazione tra matrici. Lo prendiamo come esempio perchè fortemente parallelizzabile anche attraverso diversi pattern.
+   - **Cache conscious:**
+     - **Blockwise multiplication:** divide le matrici in blocchi di dimensioni $s*s$ tale che $3*s^2 = M$, quindi la dimensione dei tre blocchi presi, uno per la matrice $A$ uno per la matrice $B$ ed uno per la matrice $C$ dei risultati, devono fittare in cache. Procede con le moltiplicazioni orizzontalmente per la lunghezza di $s$ e poi ritorna all'inizio. Continua così fino a quando non fa $s$ passaggi.
+   - **Cache obliovious:**
+     - **Recursive blockwise:** procede seguendo lo `z-order`. Caso base: tre blocchi fittano nella cache. Fino a quando le ricorsioni sudcessive non causano addizionali miss. Assume che il caso base ha blocchi di dimensione $k \sqrt{M} * k \sqrt{M}$ per qualche costante $k$. I blocchi fillano la cache con $M/B$ miss. La complessità della moltiplicazione è $(N/(k \sqrt{M}))^3$. Il costo totale è $O(N^2/B + N^3/(B*\sqrt{M}))$
+   - **Column Major Order:**
+   - **Trasposta matrice B:** per moltiplicare le magtrici efficacemente riga per riga faccio la trasposta $B^T$
+   - **Divide and conquer:** $1 + N/B$ trasferimenti con $N$ grandezza della matrice e B lunghezza del blocco della cache. $N_{Trans} = n^2 + n^3/B$. Quindi utilizziamo la divisione a blocchi. Ogni blocco è grande $S**S$ tali che $3*S^2 = M$. Così metto piccoli blocchi in memoria. No layout rows/columns major. Caso base: ho spazio per solo tre blocchi. Complessità: $O(n^2/B + n^3/B * sqrt{N})$
+   - **Bit:**
+ - **Funnelsort:** obiettivo: unire con il $k$-funnel $k$ liste ordinate tale che $k = N$ in spazio $k^2$. Le $k$ liste sono partizionate in $\sqrt{k}$.
+   - Come funziona: invoca R per ottenere $k^{3/2}$ elementi, se $R$ ha buffer $i$ con meno di $k^{3/2}$, invoca ricorsivamente $L_i$. Caso base: $k = 2,3$. Dalla definizione abbiamo che $L_i = \sqrt{k} * \sqrt{k}$ size. $R = k$ size e i buffer hanno dimensione $2*k^{3/2}$. Totale: $\sqrt{k}+1)*k+\sqrt{k}*2*k^{3/2}$
+   - Complessità: $\tetha(N/B log_{M/B}(N/M))$
+   - **Lazy funnel:**
+   - **Multicore Hierarchies:** Teoria sotto il modello ideale di cache "crolla" quando introduciamo il parallelismo. Lo scheduling ha un frosso impatto sulla performance dello schedulism nel caso del multicore. Bisognare fare in modo che i processori "cooperino" sfruttando ciò che è già presente nella cache anzichè competervi per il suo utilizzo.
+     - Esempio del parallel mergesort che sfrutta la località nella cache eseguendo le operazioni prima in un lato della cache.
 
 ## 08 - Threads
 - **Formule:** 
@@ -71,7 +93,7 @@
   - **Speedup:** $S = T_s/T_p$
   - **Efficiency:** $E = S/p$
 - **Amdahl's law:** Permette di calcolare il massimo improvment possibile parallelizzando la parte parallelela $(1 + /(fs + ((1-f)/p)))$
-- **Gustavson law:** Detta anche legge dello speed up, descrive come si comporta la scalabilità del sistema quando $n \rightarrow ∞$. Ci dice che $lim\ n\ \rightarrow ∞ S_p(n) = p$
+- **Gustavson law:** Detta anche legge dello speed up scalato, descrive come si comporta la scalabilità del sistema quando $n \rightarrow \inf$. Ci dice che $lim\ n\ \rightarrow ∞ S_p(n) = p$
 - **Shared memory programs models:** 
   - **Process:** 
   - **Thread:** 
@@ -196,7 +218,7 @@ Il programma viene eseguito linearmente finchè non trova le clausole di openMP.
 - backup task
 - MapReduce si perchè?
 
-## 13 - Spark
+## 13 - Spark
 - **Metodi:**
   - **Azioni:** Count, etc. Triggera Spark (quindi hanno la priorità) e non modificano RDD ma lo scansionano in lettura e basta.
   - **Trasformazioni:** Map, FlatMap, applicano trasformazioni sul RDD.
@@ -288,3 +310,7 @@ Reduce(t, list([doc_id,document])):
 - **Dot product:**
 - **Thread scheduling and divergence:**
 - **Matrix transpose example:**
+
+## 99 - Fonti
+- Slides del corso di High Performance Computing @ Ca'Foscari a.a. 2019/2020
+- 
