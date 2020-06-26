@@ -37,7 +37,7 @@
   - **Dynamic scheduling:** l'hardware riorganizza il flusso di esecuzione per ridurre gli stalli. Non tutte le dipendenze sono conosciute a compile time.
   - **Guidelines for auto-vectorizable code:**
     - Evitare loop termination complesse
-    - Scrivere lunghe linee di codice
+    - Scrivere strane linee di codice
     - Evitare dipendenze tra loop
     - Meglio array notation anzichè pointer (aliasing) pointer potrebbero essere qualunque cosa
     - Usare il loop index direttamente anzichè usare altre var
@@ -82,9 +82,9 @@
    - **Bit:**
  - **Funnelsort:** obiettivo: unire con il $k$-funnel $k$ liste ordinate tale che $k = N$ in spazio $k^2$. Le $k$ liste sono partizionate in $\sqrt{k}$.
    - Come funziona: invoca R per ottenere $k^{3/2}$ elementi, se $R$ ha buffer $i$ con meno di $k^{3/2}$, invoca ricorsivamente $L_i$. Caso base: $k = 2,3$. Dalla definizione abbiamo che $L_i = \sqrt{k} * \sqrt{k}$ size. $R = k$ size e i buffer hanno dimensione $2*k^{3/2}$. Totale: $\sqrt{k}+1)*k+\sqrt{k}*2*k^{3/2}$
-   - Complessità: $\tetha(N/B log_{M/B}(N/M))$
+   - Complessità: $\Theta(N/B*log_{M/B}(N/M))$
    - **Lazy funnel:**
-   - **Multicore Hierarchies:** Teoria sotto il modello ideale di cache "crolla" quando introduciamo il parallelismo. Lo scheduling ha un frosso impatto sulla performance dello schedulism nel caso del multicore. Bisognare fare in modo che i processori "cooperino" sfruttando ciò che è già presente nella cache anzichè competervi per il suo utilizzo.
+   - **Multicore Hierarchies:** Teoria sotto il modello ideale di cache "crolla" quando introduciamo il parallelismo. Lo scheduling ha un grosso impatto sulla performance dello schedulism nel caso del multicore. Bisognare fare in modo che i processori "cooperino" sfruttando ciò che è già presente nella cache anzichè competervi per il suo utilizzo.
      - Esempio del parallel mergesort che sfrutta la località nella cache eseguendo le operazioni prima in un lato della cache.
 
 ## 08 - Threads
@@ -159,7 +159,7 @@ Il programma viene eseguito linearmente finchè non trova le clausole di openMP.
   - lunghezza del path (somma dei pesi dei nodi)
   - Critical path (path con costo maggiore)
   - avg paralllem degree
-- TIG Task interaction grapgh
+- TIG Task interaction graph
   - Nodi task
   - Archi iterazioni (con label costo dell'iterazione)
 - Mapping: come assegnare i task al processore
@@ -174,21 +174,21 @@ Il programma viene eseguito linearmente finchè non trova le clausole di openMP.
 
 ## 11 - Pattern of Parallelism II
 - **Pattern di parallelismo:** sono soluzioni per gestire il parallelismo.
-  - Thread pool
+  - *Thread pool*
     - Emitters, workers, collectors
     - best threadpool size = Towrk/Tcomm
     - improv: pre-fetching
-  - Dividi and conquer
+  - *Dividi and conquer*
     - Decomponi in problemi più piccoli e usa ricorsione
-  - pipeline
+  - *pipeline*
     - diversi stage, asintoticamente raggiunge uno speed up ugualer al numero di stage. Stage eseguiti parallelamente
     - non bilanciata, dipende dallo stage più lento (conviene spezzarla in task minori o parallelizzare gli stage più pesanti)
-  - Exploratory search
+  - *Exploratory search*
     - tutte le possibilità. Indipendenza tra le varie soluzioni
     - Tecnica exploratory decomposition
     - serial work vs parallel work
     - task explored in depth-first
-  - Dynamic Task Creation
+  - *Dynamic Task Creation*
     - Creazione dinamica di tassk
     - Partener selection
       - Global round robin
